@@ -1,0 +1,26 @@
+---
+- name: Build identity-only migration definitions
+  ansible.builtin.set_fact:
+    debian_accounts_migration_users: >-
+      {{ (debian_accounts_migration_users | default([])) +
+         [dict(name=item.name, state=item.state | default('present')) |
+          combine(dict(uid=item.uid) if item.uid is defined else {}) |
+          combine(dict(gid=item.gid) if item.gid is defined else {}) |
+          combine(dict(group=item.group) if item.group is defined else {}) |
+          combine(dict(home=item.home) if item.home is defined else {})] }}
+  loop: '{{ debian_accounts_users }}'
+  no_log: true
+
+- name: Plan and migrate declared account identities
+  gazzah.community.accounts_migrate:
+    users: '{{ debian_accounts_migration_users }}'
+    groups: '{{ debian_accounts_groups }}'
+    ownership_roots: '{{ debian_accounts_ownership_roots }}'
+    excluded_paths: '{{ debian_accounts_ownership_excluded_paths }}'
+    protected_user: '{{ ansible_user | default("") }}'
+  register: debian_accounts_migration_result
+
+- name: Display identity migration plan
+  ansible.builtin.debug:
+    var: debian_accounts_migration_result.plan
+  when: debian_accounts_migration_result.plan | length > 0

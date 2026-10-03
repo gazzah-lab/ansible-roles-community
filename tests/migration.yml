@@ -1,0 +1,20 @@
+---
+- name: Test declared identity migrations
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    debian_accounts_migrate: true
+    debian_accounts_users:
+      - name: aymen.gazzah
+        uid: 1000
+        group: aymen.gazzah
+        gid: 1000
+        home: /home/aymen.gazzah
+      - name: sysmoudir
+        uid: 2000
+        group: sysmoudir
+        gid: 2000
+        home: /var/lib/sysmoudir
+  roles:
+    - gazzah.community.debian_accounts

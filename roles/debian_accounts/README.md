@@ -280,3 +280,32 @@ and explicit UID values must be unique. `system` is passed to the native user mo
 Existing accounts are never moved to another home by this role; use a separate migration procedure.
 Sudo is deliberately outside this public role. Call GROG.sudo from the private playbook after
 account provisioning, with the desired rules in the inventory.
+
+## Explicit identity migrations
+
+Set `debian_accounts_migrate: true` to reconcile existing UID/GID and home
+paths before creating other declared accounts. Default is `false`.
+The role plans the complete set first, rejects identifiers occupied by unmanaged
+accounts, and uses free temporary identifiers to support swaps. It refuses root
+and connection-account migrations and refuses active processes using affected
+identities; stop their sessions and services first. No process is killed.
+
+`--check` displays an identity-only plan, without hashes or keys, and makes no
+changes. When a migration is pending, subsequent account/key tasks are skipped
+in check mode; rerun check after the actual migration to validate those tasks.
+Existing home destinations, mounted or symlink homes are refused.
+
+Ownership is updated for files on `debian_accounts_ownership_roots` (default
+`[/]`), without following symlinks or crossing filesystem boundaries. Add separate
+local filesystems explicitly if necessary (for example `/home` on a separate
+partition). Do not include network shares or Docker daemon/container storage.
+The default `debian_accounts_ownership_excluded_paths` excludes `/proc`, `/sys`,
+`/dev`, `/run`, `/var/lib/docker` and `/var/lib/containerd`; extend it for custom
+container data roots.
+UID/GID references in ACLs, quotas, external databases and Docker subordinate-ID
+mappings are not migrated. File capability/set-ID metadata can be affected by
+ownership changes. Plan those cases separately.
+
+Take a VM snapshot before an identity migration. This is not a transaction:
+if a system command fails after changes begin, the task reports `changed: true`
+and the plan; inspect the account state before retrying. Do not interrupt a run.

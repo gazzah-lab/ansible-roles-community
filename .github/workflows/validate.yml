@@ -18,6 +18,13 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Install SSH collection
         run: ansible-galaxy collection install ansible.posix:2.2.2
+      - name: Install local collection for module resolution
+        run: |
+          mkdir -p build
+          ansible-galaxy collection build --output-path build --force
+          ansible-galaxy collection install build/gazzah-community-*.tar.gz --force --no-deps
+      - name: Test migration planning
+        run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Check role
         run: ansible-lint --offline roles/debian_accounts
       - name: Check YAML
@@ -25,4 +32,4 @@ jobs:
       - name: Build collection
         run: |
           mkdir -p build
-          ansible-galaxy collection build --output-path build
+          ansible-galaxy collection build --output-path build --force

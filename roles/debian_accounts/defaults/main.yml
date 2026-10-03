@@ -1,3 +1,15 @@
 ---
 debian_accounts_groups: []
 debian_accounts_users: []
+
+# Explicit opt-in: identity migrations may affect file ownership outside the home.
+debian_accounts_migrate: false
+# Each root is scanned without crossing filesystem boundaries.
+debian_accounts_ownership_roots: [/]
+debian_accounts_ownership_excluded_paths:
+  - /proc
+  - /sys
+  - /dev
+  - /run
+  - /var/lib/docker
+  - /var/lib/containerd

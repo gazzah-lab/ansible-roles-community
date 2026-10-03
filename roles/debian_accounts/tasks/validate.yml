@@ -22,7 +22,7 @@
   ansible.builtin.getent:
     database: group
 
-- name: Validate users and refuse implicit UID or home migrations
+- name: Validate declared user definitions
   ansible.builtin.assert:
     that:
       - item.state | default('present') in ['present', 'absent']
@@ -30,14 +30,14 @@
       - item.name != (ansible_user | default('')) or item.state | default('present') != 'absent'
       - item.uid is not defined or (item.uid is integer and item.uid >= 0)
       - >-
-        item.uid is not defined or item.name not in ansible_facts.getent_passwd
+        debian_accounts_migrate | bool or item.uid is not defined or item.name not in ansible_facts.getent_passwd
         or ansible_facts.getent_passwd[item.name][1] | int == item.uid
       - >-
-        item.uid is not defined or ansible_facts.getent_passwd | dict2items
+        debian_accounts_migrate | bool or item.uid is not defined or ansible_facts.getent_passwd | dict2items
         | rejectattr('key', 'equalto', item.name)
         | selectattr('value.1', 'equalto', item.uid | string) | list | length == 0
       - >-
-        item.home is not defined or item.name not in ansible_facts.getent_passwd
+        debian_accounts_migrate | bool or item.home is not defined or item.name not in ansible_facts.getent_passwd
         or ansible_facts.getent_passwd[item.name][4] == item.home
       - item.remove is not defined or item.remove is boolean
       - item.system is not defined or item.system is boolean
@@ -48,6 +48,7 @@
 
 - name: Validate explicit group IDs
   ansible.builtin.include_tasks: validate_group.yml
+  when: not debian_accounts_migrate | bool
   loop: '{{ debian_accounts_groups }}'
   loop_control:
     loop_var: debian_accounts_checked_group
@@ -60,5 +61,8 @@
       name: '{{ item.group }}'
       gid: '{{ item.gid }}'
   loop: '{{ debian_accounts_users }}'
-  when: item.group is defined and item.gid is defined and item.state | default('present') == 'present'
+  when:
+    - not debian_accounts_migrate | bool
+    - item.group is defined and item.gid is defined
+    - item.state | default('present') == 'present'
   no_log: true

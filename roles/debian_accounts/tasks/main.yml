@@ -3,20 +3,34 @@
   ansible.builtin.import_tasks: validate.yml
   tags: [always]
 
+- name: Reset migration definitions
+  ansible.builtin.set_fact:
+    debian_accounts_migration_users: []
+    debian_accounts_migration_result: {}
+  tags: [always]
+
+- name: Migrate explicitly enabled identities
+  ansible.builtin.import_tasks: migrate.yml
+  when: debian_accounts_migrate | bool
+  tags: [always]
+
 - name: Configure explicit and primary groups
   ansible.builtin.import_tasks: groups.yml
+  when: not (ansible_check_mode and debian_accounts_migration_result.changed | default(false))
   tags:
     - debian_accounts
     - debian_accounts_groups
 
 - name: Configure user accounts
   ansible.builtin.import_tasks: users.yml
+  when: not (ansible_check_mode and debian_accounts_migration_result.changed | default(false))
   tags:
     - debian_accounts
     - debian_accounts_users
 
 - name: Configure SSH authorized keys
   ansible.builtin.import_tasks: ssh_keys.yml
+  when: not (ansible_check_mode and debian_accounts_migration_result.changed | default(false))
   tags:
     - debian_accounts
     - debian_accounts_ssh
