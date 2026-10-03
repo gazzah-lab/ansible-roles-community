@@ -1,0 +1,22 @@
+---
+- name: Configure declared user accounts
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    state: "{{ item.state | default('present') }}"
+    uid: "{{ item.uid | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    groups: "{{ (item.groups | join(',')) if item.groups is defined else omit }}"
+    append: "{{ item.append | default(false) }}"
+    shell: "{{ item.shell | default(omit) }}"
+    comment: "{{ item.comment | default(omit) }}"
+    create_home: "{{ item.create_home | default(omit) }}"
+    home: "{{ item.home | default(omit) }}"
+    password: "{{ item.password | default(omit) }}"
+    update_password: "{{ item.update_password | default(omit) }}"
+    password_lock: "{{ item.password_lock | default(omit) }}"
+    expires: "{{ item.expires | default(omit) }}"
+    remove: "{{ item.remove | default(omit) }}"
+  loop: "{{ debian_accounts_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: true

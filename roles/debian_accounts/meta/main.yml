@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: gazzah-lab
+  role_name: debian_accounts
+  description: Gestion déclarative des comptes, groupes et clés SSH sous Debian.
+  license: MIT-0
+  min_ansible_version: "2.19"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+  galaxy_tags:
+    - debian
+    - users
+    - accounts
+    - ssh
+
+dependencies: []

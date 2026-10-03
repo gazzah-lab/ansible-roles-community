@@ -1,0 +1,42 @@
+---
+- name: Exercise Debian accounts on a disposable Debian host
+  hosts: debian_accounts_test
+  become: true
+  gather_facts: false
+  vars:
+    debian_accounts_groups:
+      - name: debian_accounts_test_secondary
+      - name: debian_accounts_test_explicit
+        gid: 29100
+    debian_accounts_users:
+      - name: debian_accounts_test_one
+        group: debian_accounts_test_primary
+        gid: 29101
+        groups:
+          - debian_accounts_test_secondary
+        append: false
+        shell: /bin/sh
+        comment: Debian accounts test
+        create_home: true
+        password_lock: true
+        expires: -1
+        ssh_authorized_keys: []
+        ssh_keys_exclusive: true
+      - name: debian_accounts_test_two
+        group: debian_accounts_test_primary
+        gid: 29101
+        groups: []
+        create_home: false
+      - name: debian_accounts_test_three
+        group: debian_accounts_test_explicit
+        gid: 29100
+        create_home: false
+      - name: debian_accounts_test_absent
+        state: absent
+        remove: true
+        ssh_authorized_keys: []
+  tasks:
+    # Import local pour fonctionner sans ANSIBLE_ROLES_PATH ni installation Galaxy.
+    - name: Apply the local Debian accounts role # noqa role-name[path]
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir }}/.."

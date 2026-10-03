@@ -1,0 +1,18 @@
+---
+- name: Configure explicit and primary groups
+  ansible.builtin.import_tasks: groups.yml
+  tags:
+    - debian_accounts
+    - debian_accounts_groups
+
+- name: Configure user accounts
+  ansible.builtin.import_tasks: users.yml
+  tags:
+    - debian_accounts
+    - debian_accounts_users
+
+- name: Configure SSH authorized keys
+  ansible.builtin.import_tasks: ssh_keys.yml
+  tags:
+    - debian_accounts
+    - debian_accounts_ssh

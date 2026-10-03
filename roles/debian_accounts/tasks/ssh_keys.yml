@@ -1,0 +1,14 @@
+---
+- name: Configure all authorized SSH keys for each present user
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.ssh_authorized_keys | join('\n') }}"
+    exclusive: "{{ item.ssh_keys_exclusive | default(false) }}"
+    state: present
+  loop: "{{ debian_accounts_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - item.state | default('present') == 'present'
+    - item.ssh_authorized_keys is defined
+  no_log: true

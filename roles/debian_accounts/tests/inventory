@@ -1,0 +1,2 @@
+[debian_accounts_test]
+localhost ansible_connection=local
