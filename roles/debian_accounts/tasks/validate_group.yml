@@ -1,0 +1,14 @@
+---
+- name: Refuse conflicting group IDs
+  ansible.builtin.assert:
+    that:
+      - debian_accounts_checked_group.gid is not defined or debian_accounts_checked_group.gid is integer
+      - >-
+        debian_accounts_checked_group.gid is not defined
+        or debian_accounts_checked_group.name not in ansible_facts.getent_group
+        or ansible_facts.getent_group[debian_accounts_checked_group.name][1] | int == debian_accounts_checked_group.gid
+      - >-
+        debian_accounts_checked_group.gid is not defined or ansible_facts.getent_group | dict2items
+        | rejectattr('key', 'equalto', debian_accounts_checked_group.name)
+        | selectattr('value.1', 'equalto', debian_accounts_checked_group.gid | string) | list | length == 0
+    fail_msg: Group ID conflict; migration requires an explicit separate procedure.

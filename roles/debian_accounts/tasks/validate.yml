@@ -1,0 +1,64 @@
+---
+- name: Gather platform facts when not already available
+  ansible.builtin.setup:
+    gather_subset: [min]
+  when: ansible_facts.os_family is not defined
+
+- name: Require a Debian target and unique declared names
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.os_family == 'Debian'
+      - debian_accounts_users | map(attribute='name') | unique | length == debian_accounts_users | length
+      - debian_accounts_groups | map(attribute='name') | unique | length == debian_accounts_groups | length
+      - >-
+        debian_accounts_users | selectattr('uid', 'defined') | map(attribute='uid') | unique | length
+        == debian_accounts_users | selectattr('uid', 'defined') | list | length
+
+- name: Read existing users before making changes
+  ansible.builtin.getent:
+    database: passwd
+
+- name: Read existing groups before making changes
+  ansible.builtin.getent:
+    database: group
+
+- name: Validate users and refuse implicit UID or home migrations
+  ansible.builtin.assert:
+    that:
+      - item.state | default('present') in ['present', 'absent']
+      - item.name != 'root' or item.state | default('present') != 'absent'
+      - item.name != (ansible_user | default('')) or item.state | default('present') != 'absent'
+      - item.uid is not defined or (item.uid is integer and item.uid >= 0)
+      - >-
+        item.uid is not defined or item.name not in ansible_facts.getent_passwd
+        or ansible_facts.getent_passwd[item.name][1] | int == item.uid
+      - >-
+        item.uid is not defined or ansible_facts.getent_passwd | dict2items
+        | rejectattr('key', 'equalto', item.name)
+        | selectattr('value.1', 'equalto', item.uid | string) | list | length == 0
+      - >-
+        item.home is not defined or item.name not in ansible_facts.getent_passwd
+        or ansible_facts.getent_passwd[item.name][4] == item.home
+      - item.remove is not defined or item.remove is boolean
+      - item.system is not defined or item.system is boolean
+      - item.ssh_authorized_keys is not defined or item.ssh_authorized_keys is not string
+    fail_msg: Invalid account definition, conflicting UID, or home migration refused.
+  loop: '{{ debian_accounts_users }}'
+  no_log: true
+
+- name: Validate explicit group IDs
+  ansible.builtin.include_tasks: validate_group.yml
+  loop: '{{ debian_accounts_groups }}'
+  loop_control:
+    loop_var: debian_accounts_checked_group
+    label: '{{ debian_accounts_checked_group.name }}'
+
+- name: Validate primary group IDs
+  ansible.builtin.include_tasks: validate_group.yml
+  vars:
+    debian_accounts_checked_group:
+      name: '{{ item.group }}'
+      gid: '{{ item.gid }}'
+  loop: '{{ debian_accounts_users }}'
+  when: item.group is defined and item.gid is defined and item.state | default('present') == 'present'
+  no_log: true

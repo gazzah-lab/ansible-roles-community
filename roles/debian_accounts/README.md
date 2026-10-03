@@ -270,3 +270,13 @@ Comportements des modules :
 Auteur : gazzah-lab. Licence du rôle : MIT-0, conservée depuis les en-têtes du
 squelette existant. Cela ne choisit pas la licence de redistribution de la collection,
 encore non définie dans `galaxy.yml`.
+
+### Validation before changes
+
+The role now gathers minimal Debian facts when needed, checks all existing UID/GID values
+and refuses implicit UID or home migrations before creating groups or changing users.
+Deleting root or the explicitly configured SSH connection user is rejected. Declared user names
+and explicit UID values must be unique. `system` is passed to the native user module.
+Existing accounts are never moved to another home by this role; use a separate migration procedure.
+Sudo is deliberately outside this public role. Call GROG.sudo from the private playbook after
+account provisioning, with the desired rules in the inventory.

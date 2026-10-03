@@ -3,6 +3,8 @@
   ansible.builtin.user:
     name: "{{ item.name }}"
     state: "{{ item.state | default('present') }}"
+    system: "{{ item.system | default(omit) }}"
+    move_home: false
     uid: "{{ item.uid | default(omit) }}"
     group: "{{ item.group | default(omit) }}"
     groups: "{{ (item.groups | join(',')) if item.groups is defined else omit }}"

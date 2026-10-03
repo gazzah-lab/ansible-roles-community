@@ -1,4 +1,8 @@
 ---
+- name: Validate all definitions before modification
+  ansible.builtin.import_tasks: validate.yml
+  tags: [always]
+
 - name: Configure explicit and primary groups
   ansible.builtin.import_tasks: groups.yml
   tags:
