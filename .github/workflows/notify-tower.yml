@@ -1,0 +1,37 @@
+---
+name: Notify Tower
+"on":
+  workflow_run:
+    workflows: [Validate]
+    types: [completed]
+    branches: [main]
+permissions: {}
+jobs:
+  notify:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger private Tower synchronization
+        env:
+          DISPATCH_TOKEN: ${{ secrets.TOWER_DISPATCH_TOKEN }}
+        run: |
+          python3 - <<'PYCODE'
+          import json
+          import os
+          import urllib.request
+          token = os.environ.get("DISPATCH_TOKEN", "")
+          if not token:
+              print("::warning::TOWER_DISPATCH_TOKEN absent: Tower synchronization not enabled.")
+              raise SystemExit(0)
+          request = urllib.request.Request(
+              "https://api.github.com/repos/gazzah-lab/tower-runner/dispatches",
+              data=json.dumps({"event_type": "tower-sync"}).encode(),
+              headers={"Authorization": "Bearer " + token,
+                       "Accept": "application/vnd.github+json",
+                       "X-GitHub-Api-Version": "2022-11-28"}, method="POST")
+          with urllib.request.urlopen(request, timeout=30) as response:
+              print("Tower synchronization requested:", response.status)
+          PYCODE
