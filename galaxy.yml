@@ -1,0 +1,19 @@
+---
+namespace: gazzah
+name: community
+version: 0.1.0
+readme: README.md
+authors:
+  - gazzah-lab
+description: Rôles génériques réutilisables
+license: []
+tags:
+  - infrastructure
+dependencies: {}
+repository: https://github.com/gazzah-lab/ansible-roles-community
+build_ignore:
+  - .git
+  - .github
+  - .cache
+  - build
+  - requirements-dev.txt

@@ -1,0 +1,17 @@
+# Secrets et fichiers locaux
+.secrets/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.vault-password*
+.venv/
+__pycache__/
+*.retry
+.cache/
+context/
+build/
+*.tar.gz
