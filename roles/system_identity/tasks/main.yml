@@ -1,0 +1,21 @@
+---
+- name: Set requested hostname
+  ansible.builtin.hostname:
+    name: '{{ system_identity_hostname }}'
+  when: system_identity_manage_hostname | bool
+  tags: [hostname]
+
+- name: Maintain local hostname entry without replacing other hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s+'
+    line: '127.0.1.1 {{ system_identity_hostname }}'
+    mode: '0644'
+  when: system_identity_manage_hosts | bool
+  tags: [hostname]
+
+- name: Set requested timezone
+  community.general.timezone:
+    name: '{{ system_identity_timezone }}'
+  when: system_identity_timezone is not none
+  tags: [timezone]

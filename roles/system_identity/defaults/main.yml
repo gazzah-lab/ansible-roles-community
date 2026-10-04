@@ -1,0 +1,5 @@
+---
+system_identity_hostname: '{{ inventory_hostname }}'
+system_identity_manage_hostname: true
+system_identity_manage_hosts: true
+system_identity_timezone: null

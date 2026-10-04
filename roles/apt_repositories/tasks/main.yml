@@ -1,0 +1,57 @@
+---
+- name: Validate APT platform and repository definitions
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.os_family == 'Debian'
+      - item.name is match('^[a-zA-Z0-9_-]+$')
+      - item.state | default('present') in ['present', 'absent']
+  loop: '{{ apt_repositories_sources }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: Configure declarative deb822 sources
+  ansible.builtin.template:
+    src: sources.j2
+    dest: '/etc/apt/sources.list.d/{{ item.name }}.sources'
+    mode: '0644'
+  loop: '{{ apt_repositories_sources }}'
+  loop_control:
+    label: '{{ item.name }}'
+  when: item.state | default('present') == 'present'
+  register: apt_repositories_written
+
+- name: Remove explicitly absent sources
+  ansible.builtin.file:
+    path: '/etc/apt/sources.list.d/{{ item.name }}.sources'
+    state: absent
+  loop: '{{ apt_repositories_sources }}'
+  loop_control:
+    label: '{{ item.name }}'
+  when: item.state | default('present') == 'absent'
+  register: apt_repositories_removed
+
+- name: Disable legacy sources only when requested
+  ansible.builtin.copy:
+    content: |
+      # Repositories managed in sources.list.d/*.sources
+    dest: /etc/apt/sources.list
+    mode: '0644'
+  when: apt_repositories_manage_legacy_file | bool
+  register: apt_repositories_legacy
+
+- name: Configure requested APT options
+  ansible.builtin.template:
+    src: options.j2
+    dest: /etc/apt/apt.conf.d/99-local
+    mode: '0644'
+  when: apt_repositories_options | length > 0
+
+- name: Refresh APT indexes before package installation
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: >-
+      {{ 0 if (apt_repositories_written is changed or apt_repositories_removed is changed
+      or apt_repositories_legacy is changed) else apt_repositories_cache_valid_time }}
+  when:
+    - apt_repositories_refresh_cache | bool
+    - not ansible_check_mode

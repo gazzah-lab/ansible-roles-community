@@ -1,0 +1,9 @@
+---
+- name: Apply requested service states
+  ansible.builtin.service:
+    name: '{{ item.name }}'
+    state: "{{ item.state | default('started') }}"
+    enabled: '{{ item.enabled | default(omit) }}'
+  loop: '{{ services_list }}'
+  loop_control:
+    label: '{{ item.name }}'

@@ -1,7 +1,7 @@
 # ansible-roles-community
 
 Collection Ansible `gazzah.community` — dépôt public.
-Le socle ne contient pas encore de rôle : ils seront ajoutés selon les premières automatisations.
+Rôles fonctionnels réutilisables, sans politique ni données propres à une infrastructure.
 
 ## Organisation
 
@@ -27,4 +27,14 @@ Après ajout et validation des rôles, créer un tag correspondant à `galaxy.ym
 Le dépôt consommateur référence un tag précis, jamais une branche flottante en exploitation.
 La licence de redistribution reste à choisir avant une publication sur Ansible Galaxy.
 
-`roles/debian_baseline` fournit le socle Debian 13 des VM : APT, identité, SSH, shell/MOTD, services et mises à jour de sécurité.
+## Rôles disponibles
+
+- [debian_accounts](roles/debian_accounts/README.md) : comptes, groupes, clés et migrations explicites.
+- [apt_repositories](roles/apt_repositories/README.md) : dépôts deb822 et options APT déclaratifs.
+- [system_identity](roles/system_identity/README.md) : hostname et fuseau horaire.
+- [services](roles/services/README.md) : état des services déclarés.
+
+La version 0.5.0 retire le rôle composite `debian_baseline`. Chaque fonction est
+appelée séparément avec ses variables d’inventaire. SSH et unattended-upgrades
+sont confiés aux rôles communautaires choisis dans le dépôt consommateur.
+Les scripts de présentation du lab restent dans ce dépôt privé.

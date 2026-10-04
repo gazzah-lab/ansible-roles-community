@@ -1,0 +1,10 @@
+Types: {{ item.types | default(['deb']) | join(' ') }}
+URIs: {{ item.uris | join(' ') }}
+Suites: {{ item.suites | join(' ') }}
+Components: {{ item.components | join(' ') }}
+{% if item.architectures is defined %}
+Architectures: {{ item.architectures | join(' ') }}
+{% endif %}
+{% if item.signed_by is defined %}
+Signed-By: {{ item.signed_by }}
+{% endif %}

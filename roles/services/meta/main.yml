@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  author: gazzah_lab
+  description: Declarative service state and boot policy
+  license: MIT
+  min_ansible_version: '2.15'
+dependencies: []

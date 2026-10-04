@@ -1,7 +1,0 @@
-PermitRootLogin {{ debian_baseline_permit_root_login }}
-PubkeyAuthentication yes
-PasswordAuthentication {{ 'yes' if debian_baseline_password_authentication | bool else 'no' }}
-KbdInteractiveAuthentication {{ 'yes' if debian_baseline_password_authentication | bool else 'no' }}
-X11Forwarding no
-ClientAliveInterval 300
-ClientAliveCountMax 2

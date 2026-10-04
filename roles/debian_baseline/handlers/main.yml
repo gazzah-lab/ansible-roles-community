@@ -1,6 +1,0 @@
----
-- name: Reload SSH daemon
-  ansible.builtin.service:
-    name: ssh
-    state: reloaded
-  when: debian_baseline_manage_services | bool

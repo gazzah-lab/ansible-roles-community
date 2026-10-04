@@ -26,7 +26,7 @@ jobs:
       - name: Test migration planning
         run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Check role
-        run: ansible-lint --offline roles/debian_accounts roles/debian_baseline
+        run: ansible-lint --offline roles/
       - name: Check YAML
         run: yamllint .
       - name: Build collection

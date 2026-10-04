@@ -1,0 +1,6 @@
+---
+apt_repositories_sources: []
+apt_repositories_options: {}
+apt_repositories_manage_legacy_file: false
+apt_repositories_refresh_cache: true
+apt_repositories_cache_valid_time: 3600
