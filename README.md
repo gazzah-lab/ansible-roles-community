@@ -26,3 +26,5 @@ ansible-galaxy collection build --output-path build
 Après ajout et validation des rôles, créer un tag correspondant à `galaxy.yml`.
 Le dépôt consommateur référence un tag précis, jamais une branche flottante en exploitation.
 La licence de redistribution reste à choisir avant une publication sur Ansible Galaxy.
+
+`roles/debian_baseline` fournit le socle Debian 13 des VM : APT, identité, SSH, shell/MOTD, services et mises à jour de sécurité.

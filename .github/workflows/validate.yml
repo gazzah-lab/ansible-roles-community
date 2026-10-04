@@ -17,7 +17,7 @@ jobs:
       - name: Install tools
         run: pip install -r requirements-dev.txt
       - name: Install SSH collection
-        run: ansible-galaxy collection install ansible.posix:2.2.2
+        run: ansible-galaxy collection install ansible.posix:2.2.2 community.general:13.4.0
       - name: Install local collection for module resolution
         run: |
           mkdir -p build
@@ -26,7 +26,7 @@ jobs:
       - name: Test migration planning
         run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Check role
-        run: ansible-lint --offline roles/debian_accounts
+        run: ansible-lint --offline roles/debian_accounts roles/debian_baseline
       - name: Check YAML
         run: yamllint .
       - name: Build collection

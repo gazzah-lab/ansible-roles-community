@@ -1,0 +1,19 @@
+---
+- name: Validate VM baseline configuration in an isolated Debian container
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    debian_baseline_manage_services: false
+    debian_baseline_sections: [apt, shell, ssh, unattended]
+    debian_baseline_permit_root_login: 'no'
+    debian_baseline_password_authentication: false
+  pre_tasks:
+    - name: Install test prerequisites
+      ansible.builtin.apt:
+        name: [openssh-server, ca-certificates]
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+  roles:
+    - gazzah.community.debian_baseline

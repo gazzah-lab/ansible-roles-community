@@ -1,0 +1,27 @@
+---
+- name: Set machine hostname
+  ansible.builtin.hostname:
+    name: '{{ debian_baseline_hostname }}'
+  when: debian_baseline_manage_services | bool
+  tags: [hostname]
+
+- name: Maintain local hostname resolution without replacing other hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s+'
+    line: '127.0.1.1 {{ debian_baseline_hostname }}'
+    mode: '0644'
+  tags: [hostname]
+
+- name: Set machine role for the MOTD
+  ansible.builtin.copy:
+    dest: /etc/node-role
+    content: |
+      {{ debian_baseline_node_role }}
+    mode: '0644'
+  tags: [node_role]
+
+- name: Configure timezone
+  community.general.timezone:
+    name: '{{ debian_baseline_timezone }}'
+  tags: [timezone]

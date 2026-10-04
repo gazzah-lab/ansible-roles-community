@@ -1,7 +1,7 @@
 ---
 namespace: gazzah
 name: community
-version: 0.3.0
+version: 0.4.0
 readme: README.md
 authors:
   - gazzah-lab
@@ -10,6 +10,7 @@ license: []
 tags:
   - infrastructure
 dependencies:
+  community.general: ">=13.4.0,<14.0.0"
   ansible.posix: ">=2.2.2,<3.0.0"
 repository: https://github.com/gazzah-lab/ansible-roles-community
 build_ignore:

@@ -1,0 +1,26 @@
+---
+- name: Ensure SSH runtime directory exists for configuration validation
+  ansible.builtin.file:
+    path: /run/sshd
+    state: directory
+    mode: '0755'
+
+- name: Install SSH policy before cloud-init snippets
+  ansible.builtin.template:
+    src: sshd.conf.j2
+    dest: /etc/ssh/sshd_config.d/00-gazzah.conf
+    mode: '0644'
+    validate: '/usr/sbin/sshd -t -f %s'
+  notify: Reload SSH daemon
+
+- name: Remove former script-managed SSH policy
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/10-local.conf
+    state: absent
+  notify: Reload SSH daemon
+
+- name: Validate complete SSH configuration
+  ansible.builtin.command:
+    argv: [/usr/sbin/sshd, -t]
+  changed_when: false
+  when: not ansible_check_mode
