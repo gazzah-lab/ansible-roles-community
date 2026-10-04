@@ -1,0 +1,30 @@
+---
+- name: Verify refreshed repositories can install previously absent packages
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    debian_baseline_sections: [apt]
+  roles:
+    - role: gazzah.community.debian_baseline
+  tasks:
+    - name: Install packages from refreshed indexes
+      ansible.builtin.apt:
+        name:
+          - git
+          - rsync
+          - unzip
+          - zip
+          - jq
+          - htop
+          - iotop
+          - iftop
+          - dnsutils
+          - net-tools
+          - lsof
+          - tree
+          - gnupg
+          - chrony
+          - rsyslog
+        state: present
+        update_cache: false

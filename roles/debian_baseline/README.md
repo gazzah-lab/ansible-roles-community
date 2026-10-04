@@ -22,3 +22,9 @@ first-boot networking. Do not apply the VM baseline to Proxmox hosts or routers.
 
 For isolated container tests only, set `debian_baseline_manage_services: false`
 to avoid systemd and hostname operations; file/configuration tasks still run.
+
+When canonical repositories change, the APT section refreshes package indexes
+before later installations. Check mode does not fetch indexes; run the APT
+section normally before previewing package installation on a fresh machine.
+`tests/apt-cache.yml` checks installation without an additional cache refresh;
+run it only in a disposable Debian 13 container with CA certificates installed.

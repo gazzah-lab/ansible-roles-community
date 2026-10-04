@@ -4,6 +4,7 @@
     src: debian.sources.j2
     dest: /etc/apt/sources.list.d/debian.sources
     mode: '0644'
+  register: debian_baseline_sources
   when: debian_baseline_manage_repositories | bool
 
 - name: Disable legacy duplicate Debian sources
@@ -23,3 +24,11 @@
       APT::Install-Suggests "false";
       Acquire::Retries "3";
       Dpkg::Use-Pty "0";
+
+- name: Refresh package indexes after repository changes
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 0
+  when:
+    - debian_baseline_sources is changed
+    - not ansible_check_mode
